@@ -1,4 +1,0 @@
-s3:
-    bucketName: ${bucketName}
-    awsAccessKeyId: ${awsAccessKeyId}
-    awsSecretAccessKey: ${awsSecretAccessKey}

@@ -1,3 +1,0 @@
-s3.bucketName=${bucketName}
-s3.awsAccessKeyId=${awsAccessKeyId}
-s3.awsSecretAccessKey=${awsSecretAccessKey}
