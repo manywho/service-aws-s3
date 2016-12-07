@@ -27,7 +27,7 @@ public class S3FileHandler implements FileHandler<ServiceConfiguration> {
     @Override
     public $File upload(ServiceConfiguration configuration, String s, FileUpload fileUpload) {
         try {
-            return fileManager.uploadFile(configuration, fileUpload.getContent());
+            return fileManager.uploadFile(configuration, fileUpload);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
