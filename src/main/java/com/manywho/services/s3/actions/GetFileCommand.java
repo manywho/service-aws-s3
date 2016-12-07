@@ -6,7 +6,6 @@ import com.manywho.sdk.services.actions.ActionResponse;
 import com.manywho.sdk.services.types.system.$File;
 import com.manywho.services.s3.ServiceConfiguration;
 import com.manywho.services.s3.managers.FileManager;
-
 import javax.inject.Inject;
 
 public class GetFileCommand implements ActionCommand<ServiceConfiguration, GetFile, GetFile.Input, GetFile.Output> {

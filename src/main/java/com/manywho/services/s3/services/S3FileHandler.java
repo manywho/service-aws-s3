@@ -7,7 +7,6 @@ import com.manywho.sdk.services.files.FileUpload;
 import com.manywho.sdk.services.types.system.$File;
 import com.manywho.services.s3.ServiceConfiguration;
 import com.manywho.services.s3.managers.FileManager;
-
 import javax.inject.Inject;
 import java.util.List;
 

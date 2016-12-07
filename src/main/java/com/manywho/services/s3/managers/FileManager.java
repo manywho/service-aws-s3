@@ -12,7 +12,6 @@ import com.manywho.services.s3.ServiceConfiguration;
 import javax.inject.Inject;
 import javax.mail.internet.ContentDisposition;
 import javax.mail.internet.ParseException;
-import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.Date;
 import java.util.UUID;

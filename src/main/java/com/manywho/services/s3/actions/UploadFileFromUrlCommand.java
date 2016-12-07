@@ -7,12 +7,9 @@ import com.manywho.sdk.services.files.FileUpload;
 import com.manywho.sdk.services.types.system.$File;
 import com.manywho.services.s3.ServiceConfiguration;
 import com.manywho.services.s3.managers.FileManager;
-import org.apache.http.client.utils.URLEncodedUtils;
-
 import javax.inject.Inject;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.UUID;
 
 public class UploadFileFromUrlCommand implements ActionCommand<ServiceConfiguration, UploadFileFromUrl, UploadFileFromUrl.Input, UploadFileFromUrl.Output> {
     private FileManager fileManager;
