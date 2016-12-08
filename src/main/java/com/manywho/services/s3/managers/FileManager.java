@@ -29,7 +29,7 @@ public class FileManager {
         String id = UUID.randomUUID().toString();
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(mimeType);
-        objectMetadata.setContentDisposition("filename=" + fileUpload.getName());
+        objectMetadata.setContentDisposition("attachment; filename=\""+fileUpload.getName()+"\"");
         s3client.putObject(new PutObjectRequest(serviceConfiguration.getBucketName(), id, fileUpload.getContent(), objectMetadata));
 
         return new $File(id, fileUpload.getName(), mimeType, getFileUrl(s3client, serviceConfiguration,id));
@@ -39,10 +39,11 @@ public class FileManager {
         AmazonS3 s3Client = getS3Client(serviceConfiguration);
         S3Object object = s3Client.getObject(serviceConfiguration.getBucketName(), id);
         ObjectMetadata objectMetadata = object.getObjectMetadata();
-        String fileName = "";
+        String fileName = null;
+        ContentDisposition contentDisposition;
 
         try {
-            ContentDisposition contentDisposition = new ContentDisposition(objectMetadata.getContentDisposition());
+            contentDisposition = new ContentDisposition(objectMetadata.getContentDisposition());
             fileName = contentDisposition.getParameter("filename");
         } catch (ParseException e) {
             e.printStackTrace();
