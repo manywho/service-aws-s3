@@ -1,63 +1,78 @@
 package com.manywho.services.s3.managers;
 
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 import com.manywho.sdk.services.files.FileUpload;
 import com.manywho.sdk.services.types.system.$File;
 import com.manywho.services.s3.ServiceConfiguration;
+import com.manywho.services.s3.s3.S3ClientFactory;
+import org.apache.tika.Tika;
+import org.apache.tika.io.TikaInputStream;
+
 import javax.inject.Inject;
 import javax.mail.internet.ContentDisposition;
 import javax.mail.internet.ParseException;
-import java.net.URLConnection;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.UUID;
 
 public class FileManager {
-    final static private Integer MAX_TIME_LINK_AVAILABLE = 300000;
+    final static private Integer LINK_EXPIRATION_IN_MS = 300000;
+
+    private final Tika tika;
 
     @Inject
-    public FileManager() {
+    public FileManager(Tika tika) {
+        this.tika = tika;
     }
 
-    public $File uploadFile(ServiceConfiguration serviceConfiguration, FileUpload fileUpload) throws Exception {
-        AmazonS3 s3client = getS3Client(serviceConfiguration);
-        String mimeType = URLConnection.guessContentTypeFromStream(fileUpload.getContent());
-        String id = UUID.randomUUID().toString();
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(mimeType);
-        objectMetadata.setContentDisposition("attachment; filename=\""+fileUpload.getName()+"\"");
-        s3client.putObject(new PutObjectRequest(serviceConfiguration.getBucketName(), id, fileUpload.getContent(), objectMetadata));
+    public $File findFile(ServiceConfiguration configuration, String id) {
+        AmazonS3 s3Client = S3ClientFactory.create(configuration);
 
-        return new $File(id, fileUpload.getName(), mimeType, getFileUrl(s3client, serviceConfiguration,id));
-    }
+        ObjectMetadata objectMetadata = s3Client.getObjectMetadata(configuration.getBucketName(), id);
 
-    public $File getFile(ServiceConfiguration serviceConfiguration, String id) {
-        AmazonS3 s3Client = getS3Client(serviceConfiguration);
-        S3Object object = s3Client.getObject(serviceConfiguration.getBucketName(), id);
-        ObjectMetadata objectMetadata = object.getObjectMetadata();
-        String fileName = null;
-        ContentDisposition contentDisposition;
+        String fileName;
 
         try {
-            contentDisposition = new ContentDisposition(objectMetadata.getContentDisposition());
-            fileName = contentDisposition.getParameter("filename");
+            fileName = new ContentDisposition(objectMetadata.getContentDisposition())
+                    .getParameter("filename");
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Unable to read the content disposition for the file " + id, e);
         }
 
-        return new $File(id, fileName, objectMetadata.getContentType(), getFileUrl(s3Client, serviceConfiguration, id));
+        return new $File(id, fileName, objectMetadata.getContentType(), generateSignedUrl(s3Client, configuration, id));
     }
 
-    private String getFileUrl(AmazonS3 s3Client, ServiceConfiguration serviceConfiguration, String fileId) {
-        return s3Client.generatePresignedUrl(serviceConfiguration.getBucketName(), fileId, new Date(System.currentTimeMillis() + MAX_TIME_LINK_AVAILABLE)).toString();
+    public $File uploadFile(ServiceConfiguration configuration, FileUpload fileUpload) {
+        AmazonS3 s3client = S3ClientFactory.create(configuration);
+
+        try (InputStream inputStream = TikaInputStream.get(fileUpload.getContent())) {
+            String mimeType = tika.detect(inputStream);
+            String id = UUID.randomUUID().toString();
+
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType(mimeType);
+            objectMetadata.setContentDisposition("attachment; filename=\"" + fileUpload.getName() + "\"");
+
+            s3client.putObject(new PutObjectRequest(
+                    configuration.getBucketName(),
+                    id,
+                    fileUpload.getContent(),
+                    objectMetadata
+            ));
+
+            return new $File(id, fileUpload.getName(), mimeType, generateSignedUrl(s3client, configuration, id));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not find the mime type of the uploaded file", e);
+        }
     }
 
-    private AmazonS3 getS3Client(ServiceConfiguration serviceConfiguration) {
-        BasicAWSCredentials credentials = new BasicAWSCredentials(serviceConfiguration.getAwsAccessKeyId(), serviceConfiguration.getAwsSecretAccessKey());
-        return new AmazonS3Client(credentials);
+    private static String generateSignedUrl(AmazonS3 s3Client, ServiceConfiguration configuration, String id) {
+        Date expiresAt = new Date(System.currentTimeMillis() + LINK_EXPIRATION_IN_MS);
+
+        return s3Client.generatePresignedUrl(configuration.getBucketName(), id, expiresAt)
+                .toString();
     }
 }

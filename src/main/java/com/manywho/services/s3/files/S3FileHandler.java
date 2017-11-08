@@ -1,4 +1,4 @@
-package com.manywho.services.s3.services;
+package com.manywho.services.s3.files;
 
 
 import com.manywho.sdk.api.run.elements.type.FileListFilter;
@@ -7,7 +7,9 @@ import com.manywho.sdk.services.files.FileUpload;
 import com.manywho.sdk.services.types.system.$File;
 import com.manywho.services.s3.ServiceConfiguration;
 import com.manywho.services.s3.managers.FileManager;
+
 import javax.inject.Inject;
+import javax.ws.rs.NotSupportedException;
 import java.util.List;
 
 public class S3FileHandler implements FileHandler<ServiceConfiguration> {
@@ -19,17 +21,12 @@ public class S3FileHandler implements FileHandler<ServiceConfiguration> {
     }
 
     @Override
-    public List<$File> findAll(ServiceConfiguration configuration, FileListFilter fileListFilter, String s) {
-        return null;
+    public List<$File> findAll(ServiceConfiguration configuration, FileListFilter filter, String path) {
+        throw new NotSupportedException("Listing all files is not yet supported in the S3 Service");
     }
 
     @Override
-    public $File upload(ServiceConfiguration configuration, String s, FileUpload fileUpload) {
-        try {
-            return fileManager.uploadFile(configuration, fileUpload);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+    public $File upload(ServiceConfiguration configuration, String path, FileUpload fileUpload) {
+        return fileManager.uploadFile(configuration, fileUpload);
     }
 }

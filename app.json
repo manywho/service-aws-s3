@@ -1,0 +1,7 @@
+{
+  "name": "Boomi Flow S3 Service",
+  "description": "A plugin that allows your Boomi Flow apps to use S3 for file operations",
+  "repository": "https://github.com/manywho/service-s3",
+  "logo": "https://s3.amazonaws.com/manywho-service-assets/icons/service-s3.png",
+  "keywords": ["manywho", "boomi", "s3", "files", "plugin", "workflow"]
+}

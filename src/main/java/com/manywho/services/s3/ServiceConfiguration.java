@@ -4,24 +4,24 @@ import com.manywho.sdk.api.ContentType;
 import com.manywho.sdk.services.configuration.Configuration;
 
 public class ServiceConfiguration implements Configuration {
-    @Configuration.Setting(name="Bucket Name", contentType = ContentType.Password)
+    @Configuration.Setting(name = "Bucket Name", contentType = ContentType.String)
     private String bucketName;
 
-    @Configuration.Setting(name="AWS Access Key Id", contentType = ContentType.Password)
-    private String awsAccessKeyId;
+    @Configuration.Setting(name = "Access Key", contentType = ContentType.String)
+    private String accessKey;
 
-    @Configuration.Setting(name="AWS Secret Access Key", contentType = ContentType.Password)
-    private String awsSecretAccessKey;
+    @Configuration.Setting(name = "Secret Key", contentType = ContentType.Password)
+    private String secretKey;
 
     public String getBucketName() {
         return bucketName;
     }
 
-    public String getAwsAccessKeyId() {
-        return awsAccessKeyId;
+    public String getAccessKey() {
+        return accessKey;
     }
 
-    public String getAwsSecretAccessKey() {
-        return awsSecretAccessKey;
+    public String getSecretKey() {
+        return secretKey;
     }
 }
