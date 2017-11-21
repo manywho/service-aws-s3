@@ -13,6 +13,9 @@ public class ServiceConfiguration implements Configuration {
     @Configuration.Setting(name = "Secret Key", contentType = ContentType.Password)
     private String secretKey;
 
+    @Configuration.Setting(name = "Region", contentType = ContentType.String)
+    private String region;
+
     public String getBucketName() {
         return bucketName;
     }
@@ -23,5 +26,9 @@ public class ServiceConfiguration implements Configuration {
 
     public String getSecretKey() {
         return secretKey;
+    }
+
+    public String getRegion() {
+        return region;
     }
 }

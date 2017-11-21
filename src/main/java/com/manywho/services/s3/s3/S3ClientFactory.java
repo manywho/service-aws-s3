@@ -13,6 +13,7 @@ public class S3ClientFactory {
 
         return AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withRegion(configuration.getRegion())
                 .build();
     }
 }
