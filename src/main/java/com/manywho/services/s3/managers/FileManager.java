@@ -59,7 +59,7 @@ public class FileManager {
             s3client.putObject(new PutObjectRequest(
                     configuration.getBucketName(),
                     id,
-                    fileUpload.getContent(),
+                    inputStream,
                     objectMetadata
             ));
 
