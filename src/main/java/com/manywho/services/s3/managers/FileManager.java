@@ -3,6 +3,7 @@ package com.manywho.services.s3.managers;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.google.common.base.Strings;
 import com.manywho.sdk.services.files.FileUpload;
 import com.manywho.sdk.services.types.system.$File;
 import com.manywho.services.s3.ServiceConfiguration;
@@ -45,12 +46,20 @@ public class FileManager {
         return new $File(id, fileName, objectMetadata.getContentType(), generateSignedUrl(s3Client, configuration, id));
     }
 
-    public $File uploadFile(ServiceConfiguration configuration, FileUpload fileUpload) {
+    public $File uploadFile(ServiceConfiguration configuration, String path, FileUpload fileUpload) {
         AmazonS3 s3client = S3ClientFactory.create(configuration);
 
         try (InputStream inputStream = TikaInputStream.get(fileUpload.getContent())) {
             String mimeType = tika.detect(inputStream);
             String id = UUID.randomUUID().toString();
+
+            // If we're given a resource path, we use that as the key prefix, otherwise we just use the plain ID
+            String key;
+            if (Strings.isNullOrEmpty(path)) {
+                key = id;
+            } else {
+                key = String.format("%s/%s", path, id);
+            }
 
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentType(mimeType);
@@ -58,7 +67,7 @@ public class FileManager {
 
             s3client.putObject(new PutObjectRequest(
                     configuration.getBucketName(),
-                    id,
+                    key,
                     inputStream,
                     objectMetadata
             ));
