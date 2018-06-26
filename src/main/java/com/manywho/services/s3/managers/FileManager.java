@@ -16,6 +16,7 @@ import javax.mail.internet.ContentDisposition;
 import javax.mail.internet.ParseException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -72,16 +73,27 @@ public class FileManager {
                     objectMetadata
             ));
 
-            return new $File(id, fileUpload.getName(), mimeType, generateSignedUrl(s3client, configuration, id));
+            return new $File(
+                    id,
+                    null,
+                    mimeType,
+                    fileUpload.getName(),
+                    OffsetDateTime.now(),
+                    OffsetDateTime.now(),
+                    null,
+                    generateSignedUrl(s3client, configuration, key),
+                    s3client.getUrl(configuration.getBucketName(), key).toString(),
+                    null
+            );
         } catch (IOException e) {
             throw new RuntimeException("Could not find the mime type of the uploaded file", e);
         }
     }
 
-    private static String generateSignedUrl(AmazonS3 s3Client, ServiceConfiguration configuration, String id) {
+    private static String generateSignedUrl(AmazonS3 s3Client, ServiceConfiguration configuration, String key) {
         Date expiresAt = new Date(System.currentTimeMillis() + LINK_EXPIRATION_IN_MS);
 
-        return s3Client.generatePresignedUrl(configuration.getBucketName(), id, expiresAt)
+        return s3Client.generatePresignedUrl(configuration.getBucketName(), key, expiresAt)
                 .toString();
     }
 }
