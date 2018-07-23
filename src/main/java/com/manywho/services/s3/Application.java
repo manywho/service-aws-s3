@@ -19,6 +19,6 @@ public class Application extends Servlet3Server  {
 
         server.addModule(new ApplicationModule());
         server.setApplication(Application.class);
-        server.start("/api/s3/1");
+        server.start("/api/aws/s3/1");
     }
 }
