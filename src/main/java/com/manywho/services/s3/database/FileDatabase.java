@@ -7,6 +7,7 @@ import com.manywho.services.s3.ServiceConfiguration;
 import com.manywho.services.s3.managers.FileManager;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotSupportedException;
 import java.util.List;
 
 public class FileDatabase implements ReadOnlyDatabase<ServiceConfiguration, $File> {
@@ -24,6 +25,6 @@ public class FileDatabase implements ReadOnlyDatabase<ServiceConfiguration, $Fil
 
     @Override
     public List<$File> findAll(ServiceConfiguration serviceConfiguration, ListFilter listFilter) {
-        return null;
+        throw new NotSupportedException("Listing all files is not yet supported in the S3 Service");
     }
 }
